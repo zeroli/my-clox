@@ -79,6 +79,9 @@ InterpretResult run()
         case OP_RETURN: {
             printValue(pop());
             printf("\n");
+            break;
+        }
+        case OP_EXIT: {
             return INTERPRET_OK;
         }
         }

@@ -12,6 +12,7 @@ typedef enum {
     OP_DIVIDE,
     OP_NEGATE,
     OP_RETURN,
+    OP_EXIT,
 } OpCode;
 
 // chunk means a sequence of byte code
