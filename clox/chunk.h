@@ -13,13 +13,14 @@ typedef enum {
 typedef struct {
     int count;
     int capacity;
-    uint8_t* code;
+    uint8_t* code;  // byte code array
+    int* lines;  // source code lines
     ValueArray constants;
 } Chunk;
 
 void initChunk(Chunk* chunk);
 void freeChunk(Chunk* chunk);
-void writeChunk(Chunk* chunk, uint8_t byte);
+void writeChunk(Chunk* chunk, uint8_t byte, int line);
 
 // return the index of this value written in array of constants
 int addConstant(Chunk* chunk, Value value);
