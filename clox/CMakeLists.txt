@@ -2,6 +2,7 @@
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)
+project(clox)
 
 # Add source to this project's executable.
 aux_source_directory(. SRCS)
