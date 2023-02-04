@@ -149,6 +149,7 @@ static void runFile(const char* path)
 int main(int argc, const char* argv[])
 {
     printf("clox - vm-based interpreter...\n");
+
     initVM();
 
     if (argc == 1) {
