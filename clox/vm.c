@@ -80,7 +80,7 @@ InterpretResult run()
         case OP_RETURN: {
             printValue(pop());
             printf("\n");
-            break;
+            return INTERPRET_OK;
         }
         case OP_EXIT: {
             return INTERPRET_OK;
@@ -94,13 +94,21 @@ InterpretResult run()
 
 InterpretResult interpret(const char* source)
 {
-    compile(source);
-    return INTERPRET_OK;
-    #if 0
-    vm.chunk = chunk;
+    Chunk chunk;
+    initChunk(&chunk);
+
+    if (!compile(source, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    vm.chunk = &chunk;
     vm.ip = vm.chunk->code;
-    return run();
-    #endif
+
+    InterpretResult result = run();
+    printf("====================\n");
+    freeChunk(&chunk);
+    return result;
 }
 
 void push(Value value)
