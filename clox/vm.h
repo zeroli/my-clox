@@ -3,6 +3,7 @@
 
 #include "chunk.h"
 #include "value.h"
+#include "object.h"
 
 #define STACK_MAX 256
 
@@ -14,6 +15,7 @@ typedef struct {
     // pointing to the slot past the last item
     // (points to where the next value to be pushed will go)
     Value* stackTop;
+    Obj* objects;  // all objects allocated
 } VM;
 
 typedef enum {
@@ -21,6 +23,8 @@ typedef enum {
     INTERPRET_COMPILE_ERROR,
     INTERPRET_RUNTIME_ERROR,
 } InterpretResult;
+
+extern VM vm;
 
 void initVM();
 void freeVM();
