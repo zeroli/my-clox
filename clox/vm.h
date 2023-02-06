@@ -4,6 +4,7 @@
 #include "chunk.h"
 #include "value.h"
 #include "object.h"
+#include "table.h"
 
 #define STACK_MAX 256
 
@@ -15,6 +16,7 @@ typedef struct {
     // pointing to the slot past the last item
     // (points to where the next value to be pushed will go)
     Value* stackTop;
+    Table strings;  // intern strings
     Obj* objects;  // all objects allocated
 } VM;
 
