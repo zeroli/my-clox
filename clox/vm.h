@@ -16,6 +16,7 @@ typedef struct {
     // pointing to the slot past the last item
     // (points to where the next value to be pushed will go)
     Value* stackTop;
+    Table globals;  // global variables
     Table strings;  // intern strings
     Obj* objects;  // all objects allocated
 } VM;
