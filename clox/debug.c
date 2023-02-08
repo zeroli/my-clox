@@ -2,8 +2,7 @@
 
 #include "debug.h"
 
-void disassembleChunk(Chunk* chunk, const char* name)
-{
+void disassembleChunk(Chunk* chunk, const char* name) {
     printf("== %s ==\n", name);
 
     for (int offset = 0; offset < chunk->count; ) {
@@ -12,15 +11,20 @@ void disassembleChunk(Chunk* chunk, const char* name)
 }
 
 // return index of next instruction
-static int simpleInstruction(const char* name, int offset)
-{
+static int simpleInstruction(const char* name, int offset) {
     printf("%s\n", name);
     return offset + 1;
 }
 
 // return index of next instruction
-static int constantInstruction(const char* name, Chunk* chunk, int offset)
-{
+static int byteInstruction(const char* name, Chunk* chunk, int offset) {
+    uint8_t slot = chunk->code[offset + 1];
+    printf("%-16s %4d\n", name, slot);
+    return offset + 1;
+}
+
+// return index of next instruction
+static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     uint8_t constant = chunk->code[offset + 1];
     printf("%-16s %4d '", name, constant);
     printValue(chunk->constants.values[constant]);
@@ -28,8 +32,7 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset)
     return offset + 2;
 }
 
-int disassembleInstruction(Chunk* chunk, int offset)
-{
+int disassembleInstruction(Chunk* chunk, int offset) {
     printf("%04d ", offset);
     if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
         printf("   | ");
@@ -49,6 +52,10 @@ int disassembleInstruction(Chunk* chunk, int offset)
         return simpleInstruction("OP_FALSE", offset);
     case OP_POP:
         return simpleInstruction("OP_POP", offset);
+    case OP_GET_LOCAL:
+        return byteInstruction("OP_GET_LOCAL", chunk, offset);
+    case OP_SET_LOCAL:
+        return byteInstruction("OP_SET_LOCAL", chunk, offset);
     case OP_GET_GLOBAL:
         return constantInstruction("OP_GET_GLOBAL", chunk, offset);
     case OP_DEFINE_GLOBAL:
