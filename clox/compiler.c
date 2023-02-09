@@ -213,7 +213,7 @@ static void addLocal(Token name) {
         error("Too many local variables in function.");
         return;
     }
-
+    current->localCount++;
     Local* local = &current->locals[current->localCount - 1];
     local->name = name;
     local->depth = -1;
@@ -448,6 +448,72 @@ static void whileStatement() {
     emitByte(OP_POP);
 }
 
+static void forStatement() {
+    // for (initializer caluse; condition clause; increment clause)
+    /*
+            [initializer expression]
+    L0:   [condition expression]
+            OP_JUMP_IF_FALSE <L1>
+            OP_POP
+            OP_JUMP <L2>
+    L3:   <increment expression>
+            ...
+            OP_JUMP <L0>
+    L2:   <body statements>
+            ...
+            OP_JUMP <L3>
+    L1:   OP_POP
+            <end>
+    */
+    beginScope();
+
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+    // initializer clause
+    if (match(TOKEN_SEMICOLON)) {
+        // No initializer
+    } else if (match(TOKEN_VAR)) {
+        varDeclaration();  // expect ';' at the end
+    } else {
+        expressionStatement();  // expect ';' at the end
+    }
+
+    // condition clause
+    int loopStart = currentChunk()->count;
+    int exitJump = -1;
+    if (!match(TOKEN_SEMICOLON)) {
+        expression();
+        consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+
+        // jump out of the loop if the condition is false
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP);  // condition
+    }
+
+    // increment clause
+    if (!match(TOKEN_RIGHT_PAREN)) {
+        int bodyJump = emitJump(OP_JUMP);
+        int incrementStart = currentChunk()->count;
+        expression();
+        emitByte(OP_POP);
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        // after increment clause executed, jump to condition caluse
+        emitLoop(loopStart);
+        // after body clause executed, jump to increment clause
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+
+    statement();
+    emitLoop(loopStart);
+
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitByte(OP_POP);  // condition
+    }
+    endScope();
+}
+
 static void synchronize() {
     parser.panicMode = false;
 
@@ -487,6 +553,8 @@ static void statement() {
         ifStatement();
     } else if (match(TOKEN_WHILE)) {
         whileStatement();
+    } else if (match(TOKEN_FOR)) {
+        forStatement();
     } else if (match(TOKEN_LEFT_BRACE)) {
         beginScope();
         block();
