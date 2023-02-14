@@ -25,7 +25,15 @@ typedef struct {
     Value* stackTop;
     Table globals;  // global variables
     Table strings;  // intern strings
+
+    size_t bytesAllocated;
+    size_t nextGC;
+
     Obj* objects;  // all objects allocated
+
+    int grayCount;
+    int grayCapacity;
+    Obj** grayStack;
 } VM;
 
 typedef enum {
