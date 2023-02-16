@@ -49,6 +49,7 @@ ObjFunction* newFunction() {
 ObjNative* newNative(NativeFn function) {
     ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
     native->function = function;
+    return native;
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
